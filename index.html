@@ -153,14 +153,9 @@
     <nav class="fixed top-0 left-0 w-full bg-white shadow-md z-50 py-4">
         <div class="container mx-auto px-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm md:text-base">
             <a href="#highlights" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">الرئيسية</a>
-            <a href="#comparison" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">مقارنة الأنظمة</a>
-            <a href="#streams" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">أداء الشعب</a>
-            <a href="#structure" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">هيكل النظام</a>
-            <a href="#llm-analysis" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">تحليل ذكي</a>
+            <a href="#comparison" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">مقارنة الأنظمة</a> 
             <a href="#tanseeq-predictions" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">توقعات التنسيق</a>
             <a href="#equivalence-calculator" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">حاسبة المجموع</a>
-            <a href="#about-developer" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">عن المطور</a>
-            <a href="#access" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">قيود البيانات</a>
         </div>
     </nav>
 
@@ -278,7 +273,8 @@
                 </div>
             </section>
 
-         
+        
+
 
             <section id="tanseeq-predictions">
                 <h2 class="section-title">توقعات تنسيق الجامعات المصرية 2025 (الشهادات المعادلة العربية)</h2>
@@ -417,16 +413,7 @@
                 </div>
             </section>
 
-            <section id="access">
-                <h2 class="section-title">حول الوصول إلى البيانات</h2>
-                 <div class="max-w-3xl mx-auto bg-amber-50 border-r-4 border-amber-400 p-6 rounded-lg">
-                    <h3 class="font-bold text-lg text-amber-800 mb-2">قيود الوصول إلى البيانات الفردية</h3>
-                    <p class="text-amber-700">
-                        بناءً على تحليل المصادر الرسمية، نؤكد أن البيانات التفصيلية للطلاب (الأسماء، الدرجات الفردية، إلخ) غير متاحة للعامة بصيغة مجمعة قابلة للتحليل (مثل ملف CSV). الطريقة الوحيدة المتاحة للوصول إلى نتيجة طالب معين هي من خلال بوابات النتائج المعتمدة باستخدام رقم الجلوس الخاص بالطالب. هذا النهج يحافظ على خصوصية بيانات الطلاب ولكنه يحد من إمكانية إجراء تحليلات بحثية معمقة على المستوى الفردي.
-                    </p>
-                </div>
-            </section>
-
+       
             <section id="about-developer">
                 <h2 class="section-title">عن المطور</h2>
                 <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
@@ -538,114 +525,26 @@
                 }
             };
 
-            const systemsSuccessCtx = document.getElementById('systemsSuccessChart').getContext('2d');
-            new Chart(systemsSuccessCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['النظام الجديد', 'النظام القديم'],
-                    datasets: [{
-                        label: 'نسبة النجاح الإجمالية',
-                        data: [reportData.comparison.newSystem.successRate, reportData.comparison.oldSystem.successRate],
-                        backgroundColor: ['rgba(13, 148, 136, 0.8)', 'rgba(100, 116, 139, 0.8)'],
-                        borderColor: ['rgb(13, 148, 136)', 'rgb(100, 116, 139)'],
-                        borderWidth: 1,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    }]
-                },
-                options: chartOptions
-            });
+            // Get button elements first, as they are needed by updateSubjects
+            const btnMath = document.getElementById('btn-sc-math');
+            const btnScience = document.getElementById('btn-sc-science');
+            const btnLit = document.getElementById('btn-lit');
 
-            const streamsSuccessCtx = document.getElementById('streamsSuccessChart').getContext('2d');
-            new Chart(streamsSuccessCtx, {
-                type: 'bar',
-                data: {
-                    labels: [reportData.streams.math.name, reportData.streams.science.name, reportData.streams.literary.name],
-                    datasets: [{
-                        label: 'نسبة النجاح حسب الشعبة',
-                        data: [reportData.streams.math.successRate, reportData.streams.science.successRate, reportData.streams.literary.successRate],
-                        backgroundColor: [reportData.streams.math.color, reportData.streams.science.color, reportData.streams.literary.color],
-                        borderColor: [reportData.streams.math.borderColor, reportData.streams.science.borderColor, reportData.streams.literary.borderColor],
-                        borderWidth: 1,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    }]
-                },
-                options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }
-            });
-            
-            const studentNumbersCtx = document.getElementById('studentNumbersChart').getContext('2d');
-            new Chart(studentNumbersCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['النظام الجديد', 'النظام القديم'],
-                    datasets: [
-                        {
-                            label: 'ناجح',
-                            data: [reportData.comparison.newSystem.passed, reportData.comparison.oldSystem.passed],
-                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                            borderColor: 'rgb(16, 185, 129)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'راسب/دور ثان',
-                            data: [
-                                reportData.comparison.newSystem.attended - reportData.comparison.newSystem.passed,
-                                reportData.comparison.oldSystem.attended - reportData.comparison.oldSystem.passed
-                            ],
-                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                            borderColor: 'rgb(239, 68, 68)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    ...chartOptions,
-                    plugins: {
-                        ...chartOptions.plugins,
-                        tooltip: {
-                            ...chartOptions.plugins.tooltip,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y.toLocaleString('ar-EG');
-                                    }
-                                    return label;
-                                }
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'توزيع أعداد الطلاب الحاضرين',
-                            font: { size: 16, family: "'Cairo', sans-serif" }
-                        }
-                    },
-                    scales: {
-                        x: { ...chartOptions.scales.x, stacked: true },
-                        y: { 
-                            ...chartOptions.scales.y, 
-                            stacked: true,
-                            ticks: {
-                                ...chartOptions.scales.y.ticks,
-                                callback: function(value) { return value.toLocaleString('ar-EG'); }
-                            }
-                        }
-                    }
-                }
-            });
-
-            const subjectsDisplay = document.getElementById('subjects-display');
             const buttons = {
-                math: document.getElementById('btn-sc-math'),
-                science: document.getElementById('btn-sc-science'),
-                literary: document.getElementById('btn-lit')
+                math: btnMath,
+                science: btnScience,
+                literary: btnLit
             };
 
+            const subjectsDisplay = document.getElementById('subjects-display');
+
+            // Define updateSubjects function here, after elements it depends on are retrieved
             function updateSubjects(stream) {
+                if (!subjectsDisplay) { // Check if subjectsDisplay exists
+                    console.error("Element with ID 'subjects-display' not found. Cannot update subject display.");
+                    return;
+                }
+
                 subjectsDisplay.style.opacity = 0;
                 setTimeout(() => {
                     subjectsDisplay.innerHTML = '';
@@ -662,15 +561,152 @@
                     subjectsDisplay.style.opacity = 1;
                 }, 300);
 
-                Object.values(buttons).forEach(btn => btn.classList.remove('active'));
-                buttons[stream].classList.add('active');
+                // Deactivate all buttons
+                Object.values(buttons).forEach(btn => {
+                    if (btn) {
+                        btn.classList.remove('active');
+                    }
+                });
+                // Activate the current button
+                if (buttons[stream]) {
+                    buttons[stream].classList.add('active');
+                }
             }
 
-            buttons.math.addEventListener('click', () => updateSubjects('math'));
-            buttons.science.addEventListener('click', () => updateSubjects('science'));
-            buttons.literary.addEventListener('click', () => updateSubjects('literary'));
 
-            updateSubjects('math');
+            const systemsSuccessCtx = document.getElementById('systemsSuccessChart');
+            if (systemsSuccessCtx) {
+                new Chart(systemsSuccessCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['النظام الجديد', 'النظام القديم'],
+                        datasets: [{
+                            label: 'نسبة النجاح الإجمالية',
+                            data: [reportData.comparison.newSystem.successRate, reportData.comparison.oldSystem.successRate],
+                            backgroundColor: ['rgba(13, 148, 136, 0.8)', 'rgba(100, 116, 139, 0.8)'],
+                            borderColor: ['rgb(13, 148, 136)', 'rgb(100, 116, 139)'],
+                            borderWidth: 1,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }]
+                    },
+                    options: chartOptions
+                });
+            } else {
+                console.error("Canvas element with ID 'systemsSuccessChart' not found.");
+            }
+
+            const streamsSuccessCtx = document.getElementById('streamsSuccessChart');
+            if (streamsSuccessCtx) {
+                new Chart(streamsSuccessCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [reportData.streams.math.name, reportData.streams.science.name, reportData.streams.literary.name],
+                        datasets: [{
+                            label: 'نسبة النجاح حسب الشعبة',
+                            data: [reportData.streams.math.successRate, reportData.streams.science.successRate, reportData.streams.literary.successRate],
+                            backgroundColor: [reportData.streams.math.color, reportData.streams.science.color, reportData.streams.literary.color],
+                            borderColor: [reportData.streams.math.borderColor, reportData.streams.science.borderColor, reportData.streams.literary.borderColor],
+                            borderWidth: 1,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }]
+                    },
+                    options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }
+                });
+            } else {
+                console.error("Canvas element with ID 'streamsSuccessChart' not found.");
+            }
+            
+            const studentNumbersCtx = document.getElementById('studentNumbersChart');
+            if (studentNumbersCtx) {
+                new Chart(studentNumbersCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['النظام الجديد', 'النظام القديم'],
+                        datasets: [
+                            {
+                                label: 'ناجح',
+                                data: [reportData.comparison.newSystem.passed, reportData.comparison.oldSystem.passed],
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                borderColor: 'rgb(16, 185, 129)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'راسب/دور ثان',
+                                data: [
+                                    reportData.comparison.newSystem.attended - reportData.comparison.newSystem.passed,
+                                    reportData.comparison.oldSystem.attended - reportData.comparison.oldSystem.passed
+                                ],
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgb(239, 68, 68)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                ...chartOptions.plugins.tooltip,
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y.toLocaleString('ar-EG');
+                                        }
+                                        return label;
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'توزيع أعداد الطلاب الحاضرين',
+                                font: { size: 16, family: "'Cairo', sans-serif" }
+                            }
+                        },
+                        scales: {
+                            x: { ...chartOptions.scales.x, stacked: true },
+                            y: { 
+                                ...chartOptions.scales.y, 
+                                stacked: true,
+                                ticks: {
+                                    ...chartOptions.scales.y.ticks,
+                                    callback: function(value) { return value.toLocaleString('ar-EG'); }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                console.error("Canvas element with ID 'studentNumbersChart' not found.");
+            }
+
+            if (btnMath) {
+                btnMath.addEventListener('click', () => updateSubjects('math'));
+            } else {
+                console.error("Button with ID 'btn-sc-math' not found.");
+            }
+            if (btnScience) {
+                btnScience.addEventListener('click', () => updateSubjects('science'));
+            } else {
+                console.error("Button with ID 'btn-sc-science' not found.");
+            }
+            if (btnLit) {
+                btnLit.addEventListener('click', () => updateSubjects('literary'));
+            } else {
+                console.error("Button with ID 'btn-lit' not found.");
+            }
+
+            if (subjectsDisplay) {
+                updateSubjects('math');
+            } else {
+                console.error("Element with ID 'subjects-display' not found. Cannot initialize subject display.");
+            }
 
             // Gemini API Integration
             const analyzeButton = document.getElementById('analyze-button');
@@ -678,60 +714,64 @@
             const buttonText = document.getElementById('button-text');
             const loadingSpinner = document.getElementById('loading-spinner');
 
-            analyzeButton.addEventListener('click', async () => {
-                analysisOutput.innerHTML = '<p class="text-slate-500">جاري تحليل البيانات، يرجى الانتظار...</p>';
-                analyzeButton.disabled = true;
-                buttonText.classList.add('hidden');
-                loadingSpinner.classList.remove('hidden');
+            if (analyzeButton && analysisOutput && buttonText && loadingSpinner) {
+                analyzeButton.addEventListener('click', async () => {
+                    analysisOutput.innerHTML = '<p class="text-slate-500">جاري تحليل البيانات، يرجى الانتظار...</p>';
+                    analyzeButton.disabled = true;
+                    buttonText.classList.add('hidden');
+                    loadingSpinner.classList.remove('hidden');
 
-                const prompt = `
-                    بناءً على بيانات نتائج الثانوية العامة المصرية للعام الدراسي 2024-2025، قم بتحليل موجز ومفصل لأبرز النقاط.
-                    البيانات المتاحة:
-                    - النظام الجديد: نسبة النجاح ${reportData.comparison.newSystem.successRate}%، عدد الطلاب الحاضرين ${reportData.comparison.newSystem.attended}، عدد الناجحين ${reportData.comparison.newSystem.passed}.
-                    - النظام القديم: نسبة النجاح ${reportData.comparison.oldSystem.successRate}%، عدد الطلاب الحاضرين ${reportData.comparison.oldSystem.attended}، عدد الناجحين ${reportData.comparison.oldSystem.passed}.
-                    - أداء الشعب (النظام الجديد):
-                        - علمي رياضة: نسبة النجاح ${reportData.streams.math.successRate}%، عدد الناجحين ${reportData.streams.math.passed}.
-                        - علمي علوم: نسبة النجاح ${reportData.streams.science.successRate}%، عدد الناجحين ${reportData.streams.science.passed}.
-                        - أدبي: نسبة النجاح ${reportData.streams.literary.successRate}%، عدد الناجحين ${reportData.streams.literary.passed}.
-                    
-                    يرجى التركيز على:
-                    1.  مقارنة أداء النظام الجديد بالقديم.
-                    2.  تحليل أداء الشعب المختلفة في النظام الجديد.
-                    3.  أي ملاحظات أو استنتاجات رئيسية يمكن استخلاصها من هذه الأرقام.
-                    اجعل التحليل موجزًا ومباشرًا في فقرة واحدة أو فقرتين.
-                `;
+                    const prompt = `
+                        بناءً على بيانات نتائج الثانوية العامة المصرية للعام الدراسي 2024-2025، قم بتحليل موجز ومفصل لأبرز النقاط.
+                        البيانات المتاحة:
+                        - النظام الجديد: نسبة النجاح ${reportData.comparison.newSystem.successRate}%، عدد الطلاب الحاضرين ${reportData.comparison.newSystem.attended}، عدد الناجحين ${reportData.comparison.newSystem.passed}.
+                        - النظام القديم: نسبة النجاح ${reportData.comparison.oldSystem.successRate}%، عدد الطلاب الحاضرين ${reportData.comparison.oldSystem.attended}، عدد الناجحين ${reportData.comparison.oldSystem.passed}.
+                        - أداء الشعب (النظام الجديد):
+                            - علمي رياضة: نسبة النجاح ${reportData.streams.math.successRate}%، عدد الناجحين ${reportData.streams.math.passed}.
+                            - علمي علوم: نسبة النجاح ${reportData.streams.science.successRate}%، عدد الناجحين ${reportData.streams.science.passed}.
+                            - أدبي: نسبة النجاح ${reportData.streams.literary.successRate}%، عدد الناجحين ${reportData.streams.literary.passed}.
+                        
+                        يرجى التركيز على:
+                        1.  مقارنة أداء النظام الجديد بالقديم.
+                        2.  تحليل أداء الشعب المختلفة في النظام الجديد.
+                        3.  أي ملاحظات أو استنتاجات رئيسية يمكن استخلاصها من هذه الأرقام.
+                        اجعل التحليل موجزًا ومباشرًا في فقرة واحدة أو فقرتين.
+                    `;
 
-                try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        analysisOutput.innerHTML = `<p>${text}</p>`;
-                    } else {
-                        analysisOutput.innerHTML = '<p class="text-red-600">حدث خطأ: لم يتم الحصول على تحليل. يرجى المحاولة مرة أخرى.</p>';
+                    try {
+                        let chatHistory = [];
+                        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                        const payload = { contents: chatHistory };
+                        const apiKey = "";
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                        
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const text = result.candidates[0].content.parts[0].text;
+                            analysisOutput.innerHTML = `<p>${text}</p>`;
+                        } else {
+                            analysisOutput.innerHTML = '<p class="text-red-600">حدث خطأ: لم يتم الحصول على تحليل. يرجى المحاولة مرة أخرى.</p>';
+                        }
+                    } catch (error) {
+                        console.error('Error calling Gemini API:', error);
+                        analysisOutput.innerHTML = '<p class="text-red-600">حدث خطأ أثناء الاتصال بخدمة التحليل. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</p>';
+                    } finally {
+                        analyzeButton.disabled = false;
+                        buttonText.classList.remove('hidden');
+                        loadingSpinner.classList.add('hidden');
                     }
-                } catch (error) {
-                    console.error('Error calling Gemini API:', error);
-                    analysisOutput.innerHTML = '<p class="text-red-600">حدث خطأ أثناء الاتصال بخدمة التحليل. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</p>';
-                } finally {
-                    analyzeButton.disabled = false;
-                    buttonText.classList.remove('hidden');
-                    loadingSpinner.classList.add('hidden');
-                }
-            });
+                });
+            } else {
+                console.error("One or more LLM analysis elements not found. Cannot initialize LLM analysis feature.");
+            }
 
             // Equivalent Score Calculator Logic
             const arabCertificatePercentageInput = document.getElementById('arab-certificate-percentage');
@@ -741,27 +781,31 @@
             const qualifyingSubjectsNote = document.getElementById('qualifying-subjects-note');
             const errorMessage = document.getElementById('error-message');
 
-            calculateEquivalentScoreButton.addEventListener('click', () => {
-                const percentage = parseFloat(arabCertificatePercentageInput.value);
-                const facultyType = desiredFacultyTypeSelect.value;
+            if (arabCertificatePercentageInput && desiredFacultyTypeSelect && calculateEquivalentScoreButton && calculatedScoreSpan && qualifyingSubjectsNote && errorMessage) {
+                calculateEquivalentScoreButton.addEventListener('click', () => {
+                    const percentage = parseFloat(arabCertificatePercentageInput.value);
+                    const facultyType = desiredFacultyTypeSelect.value;
 
-                // Reset messages
-                qualifyingSubjectsNote.classList.add('hidden');
-                errorMessage.classList.add('hidden');
-                calculatedScoreSpan.textContent = '--';
+                    // Reset messages
+                    qualifyingSubjectsNote.classList.add('hidden');
+                    errorMessage.classList.add('hidden');
+                    calculatedScoreSpan.textContent = '--';
 
-                if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-                    errorMessage.classList.remove('hidden');
-                    return;
-                }
+                    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
 
-                const equivalentScore = (percentage / 100) * 320;
-                calculatedScoreSpan.textContent = equivalentScore.toFixed(2);
+                    const equivalentScore = (percentage / 100) * 320;
+                    calculatedScoreSpan.textContent = equivalentScore.toFixed(2);
 
-                if (facultyType === 'medical' || facultyType === 'engineering') {
-                    qualifyingSubjectsNote.classList.remove('hidden');
-                }
-            });
+                    if (facultyType === 'medical' || facultyType === 'engineering') {
+                        qualifyingSubjectsNote.classList.remove('hidden');
+                    }
+                });
+            } else {
+                console.error("One or more calculator elements not found. Cannot initialize calculator feature.");
+            }
         });
     </script>
 </body>
