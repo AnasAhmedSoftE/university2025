@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل نتائج الثانوية العامة المصرية 2024-2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Neutral Grays, Muted Blues, Teal, Soft Amber) -->
+    <!-- Application Structure Plan: A top-down dashboard-style narrative. It starts with key highlights for a quick overview. Then, it presents an interactive comparison between the new and old systems, as this is a core theme of the report. Following that, it dives deeper into the new system's performance across different streams. An interactive section explains the new system's structure. Finally, it transparently addresses data access limitations. This structure was chosen to guide the user from a high-level summary to detailed, interactive exploration, making the complex information digestible and engaging. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Overall success rates (New vs. Old). Goal: Compare. Viz: Bar Chart. Interaction: Tooltips. Justification: Direct, clear comparison of two key metrics. Library: Chart.js.
+        - Report Info: Success rates by stream. Goal: Compare. Viz: Bar Chart. Interaction: Tooltips. Justification: Effectively highlights performance variance between streams. Library: Chart.js.
+        - Report Info: Student statistics (Applied, Attended, Passed). Goal: Inform. Viz: Stacked Bar Chart. Interaction: Tooltips. Justification: Shows the composition of the student body for each system efficiently. Library: Chart.js.
+        - Report Info: New system structure (subjects/marks). Goal: Organize/Inform. Viz: HTML/CSS layout. Interaction: Clickable buttons to reveal data for each stream. Justification: More engaging and space-efficient than a large static table. Method: Vanilla JS + Tailwind.
+        - Report Info: Key stats (overall success, top stream). Goal: Inform. Viz: Stat Cards. Interaction: None. Justification: Provides a quick, scannable summary at the top. Method: HTML/Tailwind.
+        - Report Info: LLM-powered analysis. Goal: Synthesize/Inform. Viz: Text output. Interaction: Button click to generate analysis. Justification: Provides qualitative insights from quantitative data. Method: Gemini API call.
+        - Report Info: Predicted Tanseeq for Equivalent Certificates. Goal: Predict/Inform. Viz: Stat Cards/Text. Interaction: None. Justification: Addresses user's specific query for future planning. Method: HTML/Tailwind with JS for data display.
+        - Report Info: Equivalent Certificates Calculator. Goal: Calculate/Inform. Viz: Interactive form with text output. Interaction: Input fields, button click. Justification: Provides a practical tool for students to estimate their score. Method: HTML/Tailwind with Vanilla JS for calculation.
+        - Report Info: About Developer. Goal: Inform. Viz: Text block. Interaction: None. Justification: Provides contact and developer information. Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 5rem; /* Adjust this value based on your navbar height */
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1e293b; /* slate-800 */
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: #475569; /* slate-600 */
+            margin-bottom: 2.5rem;
+            text-align: center;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .tab-button {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .tab-button.active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            box-shadow: 0 4px 14px 0 rgb(15 118 110 / 39%);
+        }
+        .tab-button:not(.active) {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #334155; /* slate-700 */
+        }
+        .tab-button:not(.active):hover {
+            background-color: #e2e8f0; /* slate-200 */
+        }
+        .llm-button {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .llm-button:hover {
+            background-color: #2563eb; /* blue-600 */
+            transform: translateY(-2px);
+        }
+        .llm-button:disabled {
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .calculator-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1; /* slate-300 */
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .calculator-button {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .calculator-button:hover {
+            background-color: #0f766e; /* teal-700 */
+            transform: translateY(-2px);
+        }
+        
+        /* Hamburger Menu Styles */
+        .hamburger-line {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Hamburger to X transformation */
+        .hamburger-open .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger-open .hamburger-line:nth-child(2) {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        .hamburger-open .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+        
+        /* Mobile menu open state */
+        .mobile-menu-open {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        
+        /* Mobile navigation link hover effects */
+        .mobile-nav-link:hover {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        
+        /* Focus styles for accessibility */
+        #mobile-menu-button:focus {
+            outline: none;
+        }
+        
+        /* Ensure mobile menu appears above other content */
+        #mobile-menu {
+            z-index: 40;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* Debug styles - remove after testing */
+        #mobile-menu-button {
+            border: 1px solid transparent;
+        }
+        
+        #mobile-menu-button:hover {
+            border-color: #cbd5e1;
+        }
+        
+        /* Ensure the button is clickable */
+        #mobile-menu-button {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="fixed top-0 left-0 w-full bg-white shadow-md z-50 py-4">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <!-- Logo/Brand (optional) -->
+            <div class="text-xl font-bold text-teal-800 hidden sm:block">
+                تحليل الثانوية
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm md:text-base">
+                <a href="#highlights" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">الرئيسية</a>
+                <a href="#comparison" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">مقارنة الأنظمة</a> 
+                <a href="#tanseeq-predictions" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">توقعات التنسيق</a>
+                <a href="#equivalence-calculator" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">حاسبة المجموع</a>
+            </div>
+            
+            <!-- Mobile Hamburger Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden flex flex-col justify-center items-center w-10 h-10 space-y-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 rounded-md hover:bg-slate-100 active:bg-slate-200 cursor-pointer">
+                <span class="hamburger-line w-6 h-0.5 bg-slate-700 transition-all duration-300 ease-in-out transform origin-center"></span>
+                <span class="hamburger-line w-6 h-0.5 bg-slate-700 transition-all duration-300 ease-in-out"></span>
+                <span class="hamburger-line w-6 h-0.5 bg-slate-700 transition-all duration-300 ease-in-out transform origin-center"></span>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-slate-200 transform -translate-y-full opacity-0 transition-all duration-300 ease-in-out pointer-events-none">
+            <div class="container mx-auto px-4 py-4 space-y-2">
+                <a href="#highlights" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">الرئيسية</a>
+                <a href="#comparison" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">مقارنة الأنظمة</a> 
+                <a href="#tanseeq-predictions" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">توقعات التنسيق</a>
+                <a href="#equivalence-calculator" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">حاسبة المجموع</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 md:py-12 mt-20 sm:mt-24"> <!-- Adjusted mt for responsiveness -->
+
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-3xl md:text-5xl font-bold text-teal-800 mb-4">تحليل نتائج الثانوية العامة المصرية 2024-2025</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                لوحة عرض تفاعلية تستعرض أبرز مؤشرات ونتائج الثانوية العامة للنظام الجديد، وتقدم مقارنة شاملة مع النظام القديم بناءً على البيانات الرسمية المتاحة.
+            </p>
+        </header>
+
+        <main class="space-y-16 md:space-y-24">
+
+            <section id="highlights">
+                <h2 class="section-title">أبرز المؤشرات</h2>
+                <p class="section-subtitle">نظرة سريعة على أهم الأرقام التي شكلت نتائج هذا العام في النظام الجديد.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="stat-card text-center">
+                        <p class="text-4xl font-bold text-teal-600">79.2%</p>
+                        <h3 class="mt-2 text-lg font-semibold text-slate-700">نسبة النجاح الإجمالية</h3>
+                        <p class="text-sm text-slate-500">(النظام الجديد)</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-4xl font-bold text-amber-600">85.8%</p>
+                        <h3 class="mt-2 text-lg font-semibold text-slate-700">الشعبة الأعلى نجاحاً</h3>
+                        <p class="text-sm text-slate-500">(علمي رياضة)</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-4xl font-bold text-sky-600">542,184</p>
+                        <h3 class="mt-2 text-lg font-semibold text-slate-700">إجمالي الطلاب الناجحين</h3>
+                        <p class="text-sm text-slate-500">(النظام الجديد)</p>
+                    </div>
+                    <div class="stat-card text-center bg-slate-800 text-white">
+                        <p class="text-4xl font-bold text-emerald-400">+6.5%</p>
+                        <h3 class="mt-2 text-lg font-semibold text-slate-200">فارق نسبة النجاح</h3>
+                        <p class="text-sm text-slate-400">(لصالح النظام الجديد)</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="comparison">
+                <h2 class="section-title">مقارنة بين النظامين: الجديد والقديم</h2>
+                <p class="section-subtitle">
+                    شهد هذا العام وجود نظامين يعملان بالتوازي. هذا القسم يوضح الفروقات الجوهرية في هيكل النظامين وأثرهما المباشر على نسب النجاح وأعداد الطلاب.
+                </p>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <div class="chart-container mb-8">
+                        <canvas id="systemsSuccessChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                        <div class="bg-slate-100 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg text-teal-700">النظام الجديد</h4>
+                            <p class="text-2xl font-bold mt-1">320 درجة</p>
+                            <p class="text-slate-600">المجموع الكلي</p>
+                            <p class="text-2xl font-bold mt-2">5 مواد</p>
+                            <p class="text-slate-600">عدد المواد الأساسية</p>
+                        </div>
+                        <div class="bg-slate-100 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg text-slate-700">النظام القديم</h4>
+                            <p class="text-2xl font-bold mt-1">410 درجة</p>
+                            <p class="text-slate-600">المجموع الكلي</p>
+                            <p class="text-2xl font-bold mt-2">7 مواد</p>
+                            <p class="text-slate-600">عدد المواد الأساسية</p>
+                        </div>
+                    </div>
+                     <div class="chart-container mt-12">
+                        <canvas id="studentNumbersChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="streams">
+                <h2 class="section-title">أداء الطلاب حسب الشعبة (النظام الجديد)</h2>
+                <p class="section-subtitle">
+                    تختلف نسب النجاح بشكل ملحوظ بين الشعب التعليمية الثلاث. هنا نستعرض أداء كل شعبة بالتفصيل، مما يكشف عن تباين في مستويات الأداء.
+                </p>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <div class="chart-container mb-10">
+                        <canvas id="streamsSuccessChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div>
+                            <h4 class="text-xl font-bold text-amber-600">علمي رياضة</h4>
+                            <p class="text-3xl font-extrabold mt-1">85.8%</p>
+                            <p class="text-slate-500">92,594 ناجح</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-sky-600">علمي علوم</h4>
+                            <p class="text-3xl font-extrabold mt-1">79.6%</p>
+                            <p class="text-slate-500">332,183 ناجح</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-rose-600">أدبي</h4>
+                            <p class="text-3xl font-extrabold mt-1">73.6%</p>
+                            <p class="text-slate-500">117,407 ناجح</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="structure">
+                <h2 class="section-title">هيكل المواد والدرجات في النظام الجديد</h2>
+                <p class="section-subtitle">
+                    يعتمد النظام الجديد على 5 مواد أساسية لكل شعبة، بمجموع كلي موحد قدره 320 درجة. اضغط على اسم الشعبة لاستكشاف المواد المخصصة لها وتوزيع الدرجات.
+                </p>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <div class="flex justify-center items-center gap-2 md:gap-4 mb-6 flex-wrap">
+                        <button id="btn-sc-math" class="tab-button active">علمي رياضة</button>
+                        <button id="btn-sc-science" class="tab-button">علمي علوم</button>
+                        <button id="btn-lit" class="tab-button">أدبي</button>
+                    </div>
+                    <div id="subjects-display" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center transition-opacity duration-500">
+                    </div>
+                </div>
+            </section>
+
+        
+
+
+            <section id="tanseeq-predictions">
+                <h2 class="section-title">توقعات تنسيق الجامعات المصرية 2025 (الشهادات المعادلة العربية)</h2>
+                <p class="section-subtitle">
+                    بناءً على أداء النظام الجديد للثانوية العامة 2024-2025، نقدم هنا توقعات لدرجات القبول في الكليات الطبية والهندسية لطلاب الشهادات المعادلة العربية. يرجى العلم أن هذه مجرد توقعات وليست نتائج رسمية.
+                </p>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center">توقعات الحد الأدنى للقبول (نسبة مئوية)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="stat-card text-center bg-blue-50">
+                            <h4 class="text-xl font-bold text-blue-700 mb-2">الكليات الطبية</h4>
+                            <p class="text-4xl font-extrabold text-blue-600">93% - 96%</p>
+                            <p class="text-sm text-slate-500 mt-1">(طب، صيدلة، أسنان، علاج طبيعي)</p>
+                        </div>
+                        <div class="stat-card text-center bg-green-50">
+                            <h4 class="text-xl font-bold text-green-700 mb-2">الكليات الهندسية</h4>
+                            <p class="text-4xl font-extrabold text-green-600">88% - 91%</p>
+                            <p class="text-sm text-slate-500 mt-1">(هندسة، حاسبات ومعلومات)</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center mt-10">تقدير المقاعد والعوامل المؤثرة</h3>
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 text-right">
+                        <p class="text-slate-700 mb-4">
+                            يعتمد تقدير عدد المقاعد المتاحة لطلاب الشهادات المعادلة العربية بشكل كبير على عدة عوامل رئيسية، أهمها:
+                        </p>
+                        <ul class="list-disc list-inside text-slate-700 space-y-2 mb-4">
+                            <li><strong class="text-slate-800">القدرة الاستيعابية للجامعات:</strong> تحدد الجامعات الحكومية المصرية أعداد المقبولين بناءً على طاقتها الاستيعابية لكل كلية.</li>
+                            <li><strong class="text-slate-800">سياسات وزارة التعليم العالي:</strong> تحدد الوزارة سنوياً نسبة مئوية من إجمالي المقاعد المخصصة للطلاب الحاصلين على الشهادات المعادلة (عادةً ما تتراوح بين 5% إلى 10% من إجمالي المقاعد في كل كلية).</li>
+                            <li><strong class="text-slate-800">أعداد المتقدمين من الشهادات المعادلة:</strong> يؤثر العدد الإجمالي للطلاب المتقدمين من الشهادات المعادلة وأداؤهم العام على درجة التنافسية وبالتالي على الحد الأدنى للقبول.</li>
+                            <li><strong class="text-slate-800">توزيع الدرجات للطلاب المتقدمين:</strong> كلما زاد عدد الطلاب ذوي الدرجات المرتفعة، زادت المنافسة وارتفع التنسيق.</li>
+                        </ul>
+                        <p class="text-slate-700 font-semibold">
+                            نظرًا لعدم توفر هذه البيانات بشكل علني ومفصل، لا يمكن تقديم رقم دقيق لعدد المقاعد، ولكن يُنصح الطلاب بمتابعة الإعلانات الرسمية لوزارة التعليم العالي ومكتب التنسيق.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center mt-10">نصائح إرشادية لطلاب الشهادات المعادلة العربية</h3>
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 text-right">
+                        <ul class="list-disc list-inside text-slate-700 space-y-2">
+                            <li><strong class="text-slate-800">الاستعداد الجيد:</strong> التركيز على تحقيق أعلى الدرجات الممكنة في الشهادة المعادلة، حيث أن المنافسة على الكليات العليا تكون شديدة.</li>
+                            <li><strong class="text-slate-800">متابعة الأخبار الرسمية:</strong> متابعة موقع وزارة التعليم العالي ومكتب التنسيق باستمرار للحصول على أحدث المعلومات حول مواعيد التقديم، الأوراق المطلوبة، وأي تغييرات في قواعد القبول.</li>
+                            <li><strong class="text-slate-800">فهم قواعد المعادلة:</strong> التأكد من فهم كيفية معادلة شهادتك للثانوية العامة المصرية وتأثير ذلك على مجموعك الاعتباري.</li>
+                            <li><strong class="text-slate-800">التخطيط البديل:</strong> وضع خطط بديلة للقبول في حال عدم تحقيق التنسيق المطلوب، بما في ذلك التفكير في الجامعات الخاصة أو البرامج الأخرى.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="equivalence-calculator">
+                <h2 class="section-title">حاسبة المجموع الاعتباري للشهادات المعادلة العربية</h2>
+                <p class="section-subtitle">
+                    تساعدك هذه الأداة على تقدير مجموعك الاعتباري للقبول في الجامعات المصرية بناءً على نسبتك المئوية في شهادتك العربية.
+                    <strong class="text-red-600">هذه الحاسبة تقدم تقديرات وليست نتائج رسمية. يجب دائماً الرجوع إلى القواعد الرسمية لوزارة التعليم العالي المصرية.</strong>
+                </p>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center">قواعد المعادلة وأهميتها</h3>
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 text-right mb-8">
+                        <p class="text-slate-700 mb-4">
+                            تهدف عملية معادلة الشهادات العربية إلى توحيد معيار تقييم الطلاب الحاصلين على شهادات من أنظمة تعليمية مختلفة خارج مصر. يتم تحويل مجموع الطالب في الشهادة العربية إلى مجموع يعادل مجموع الثانوية العامة المصرية (النظام الجديد 320 درجة).
+                        </p>
+                        <p class="text-slate-700 mb-4">
+                            تعتمد قواعد المعادلة الرسمية على عدة عوامل، منها:
+                        </p>
+                        <ul class="list-disc list-inside text-slate-700 space-y-2 mb-4">
+                            <li><strong class="text-slate-800">النسبة المئوية الكلية:</strong> وهي الأساس في عملية التحويل.</li>
+                            <li><strong class="text-slate-800">المواد المؤهلة:</strong> بعض الكليات (مثل الطب والهندسة) تتطلب دراسة مواد معينة (مثل الكيمياء، الفيزياء، الأحياء، الرياضيات) بحد أدنى من الدرجات أو اجتياز امتحانات تكميلية.</li>
+                            <li><strong class="text-slate-800">بلد الشهادة:</strong> قد تختلف متطلبات المعادلة قليلاً من دولة لأخرى بناءً على الاتفاقيات التعليمية.</li>
+                        </ul>
+                        <p class="text-slate-700 font-semibold">
+                            يُعد المجموع الاعتباري هو الأساس الذي يتم بناءً عليه ترشيح الطالب للقبول في الكليات المختلفة ضمن تنسيق الجامعات المصرية.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center">حاسبة المجموع الاعتباري</h3>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
+                        <div class="w-full md:w-1/2">
+                            <label for="arab-certificate-percentage" class="block text-slate-700 text-sm font-bold mb-2 text-right">
+                                النسبة المئوية في شهادتك العربية (مثال: 95.5)
+                            </label>
+                            <input type="number" id="arab-certificate-percentage" class="calculator-input" placeholder="أدخل النسبة المئوية (0-100)" min="0" max="100" step="0.01">
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <label for="desired-faculty-type" class="block text-slate-700 text-sm font-bold mb-2 text-right">
+                                نوع الكلية المستهدفة (للتنبيه حول المواد المؤهلة)
+                            </label>
+                            <select id="desired-faculty-type" class="calculator-input">
+                                <option value="general">عام (لا يوجد متطلبات مواد خاصة)</option>
+                                <option value="medical">طبية (طب، صيدلة، أسنان، علاج طبيعي)</option>
+                                <option value="engineering">هندسية (هندسة، حاسبات ومعلومات)</option>
+                                <option value="literary">أدبية</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-center mb-6">
+                        <button id="calculate-equivalent-score" class="calculator-button">احسب المجموع الاعتباري</button>
+                    </div>
+                    <div id="equivalent-score-output" class="bg-blue-50 p-6 rounded-lg border border-blue-200 text-center min-h-[100px] flex flex-col items-center justify-center">
+                        <p class="text-blue-700 text-lg font-semibold">المجموع الاعتباري المتوقع:</p>
+                        <p class="text-blue-900 text-4xl font-extrabold mt-2"><span id="calculated-score">--</span> / 320</p>
+                        <p id="qualifying-subjects-note" class="text-blue-600 text-sm mt-3 hidden">
+                            <strong class="text-red-700">ملاحظة هامة:</strong> الكليات الطبية/الهندسية تتطلب مواد مؤهلة (مثل الكيمياء، الفيزياء، الأحياء/الرياضيات) وقد تتطلب امتحانات تكميلية. يرجى مراجعة القواعد الرسمية.
+                        </p>
+                        <p id="error-message" class="text-red-600 text-sm mt-3 hidden">
+                            الرجاء إدخال نسبة مئوية صحيحة بين 0 و 100.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center mt-10">المنطق الحسابي (تبسيط)</h3>
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 text-right">
+                        <p class="text-slate-700 mb-4">
+                            تعتمد هذه الحاسبة على منطق تحويل مباشر للنسبة المئوية لشهادتك العربية إلى المجموع الكلي للنظام الجديد للثانوية العامة المصرية (320 درجة).
+                        </p>
+                        <p class="text-slate-700 font-bold text-center text-xl mb-4">
+                            المجموع الاعتباري = (النسبة المئوية للطالب / 100) * 320
+                        </p>
+                        <p class="text-slate-700">
+                            على سبيل المثال، إذا كانت نسبتك المئوية في الشهادة العربية 90%، فإن مجموعك الاعتباري المتوقع سيكون:
+                            <br>
+                            $(90 / 100) * 320 = 288$ درجة.
+                        </p>
+                        <p class="text-red-600 text-sm mt-4">
+                            <strong class="font-bold">تنبيه:</strong> هذا تبسيط للمنطق. القواعد الرسمية قد تتضمن عوامل إضافية مثل درجات مواد معينة في شهادتك، أو الحاجة لاجتياز امتحانات معادلة تكميلية لمواد لم تدرسها أو لم تستوفِ شروطها في شهادتك الأصلية.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 text-center mt-10">تنبيهات إرشادية للطلاب</h3>
+                    <div class="bg-amber-50 border-r-4 border-amber-400 p-6 rounded-lg text-right">
+                        <ul class="list-disc list-inside text-amber-700 space-y-2">
+                            <li><strong class="text-amber-800">الدقة في إدخال البيانات:</strong> تأكد من إدخال النسبة المئوية الصحيحة والدقيقة من شهادتك الرسمية. أي خطأ قد يؤثر على التقدير.</li>
+                            <li><strong class="text-amber-800">المرجع الرسمي هو الأساس:</strong> هذه الأداة هي للمساعدة والتقدير فقط. المرجع الوحيد الموثوق به هو القواعد والإعلانات الصادرة عن وزارة التعليم العالي والبحث العلمي المصرية ومكتب التنسيق.</li>
+                            <li><strong class="text-amber-800">شروط الكليات:</strong> بعض الكليات تتطلب شروطاً خاصة للمواد العلمية أو الأدبية. تأكد من استيفاء هذه الشروط بالإضافة إلى المجموع الاعتباري.</li>
+                            <li><strong class="text-amber-800">المتابعة المستمرة:</strong> تابع بانتظام المواقع الرسمية لمكتب التنسيق المصري للحصول على أحدث المعلومات حول مواعيد التقديم، الأوراق المطلوبة، وأي تحديثات في قواعد المعادلة.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+       
+            <section id="about-developer">
+                <h2 class="section-title">عن المطور</h2>
+                <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
+                    <h3 class="text-xl font-bold text-slate-700 mb-2">أنس أحمد</h3>
+                    <p class="text-slate-600 mb-4">
+                        مهندس برمجيات ومحلل بيانات، قام بتطوير هذا الموقع لتقديم رؤى وتحليلات حول نتائج الثانوية العامة المصرية، ومساعدة الطلاب في رحلتهم التعليمية.
+                    </p>
+                    <p class="text-slate-700">
+                        للتواصل: <a href="mailto:enganasahmed@outlook.com" class="text-blue-600 hover:underline">enganasahmed@outlook.com</a>
+                    </p>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-16 md:mt-24 pt-8 border-t border-slate-200">
+            <p class="text-slate-500">تم تطوير لوحة العرض هذه بناءً على تقرير تحليل البيانات الإحصائية لنتائج الثانوية العامة 2024-2025.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Mobile Menu Toggle Functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            console.log('Mobile menu elements found:', {
+                button: mobileMenuButton,
+                menu: mobileMenu,
+                links: mobileNavLinks.length
+            });
+            
+            if (mobileMenuButton && mobileMenu) {
+                console.log('Setting up mobile menu event listeners');
+                
+                // Function to toggle mobile menu
+                function toggleMobileMenu() {
+                    console.log('Toggle mobile menu called');
+                    
+                    // Toggle hamburger icon
+                    mobileMenuButton.classList.toggle('hamburger-open');
+                    console.log('Hamburger class toggled:', mobileMenuButton.classList.contains('hamburger-open'));
+                    
+                    // Toggle mobile menu visibility
+                    mobileMenu.classList.toggle('mobile-menu-open');
+                    console.log('Mobile menu class toggled:', mobileMenu.classList.contains('mobile-menu-open'));
+                    
+                    // Prevent body scroll when menu is open
+                    document.body.style.overflow = mobileMenu.classList.contains('mobile-menu-open') ? 'hidden' : '';
+                }
+                
+                // Click event listener
+                mobileMenuButton.addEventListener('click', function(e) {
+                    console.log('Mobile menu button clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Add visual feedback
+                    mobileMenuButton.style.backgroundColor = '#f1f5f9';
+                    setTimeout(() => {
+                        mobileMenuButton.style.backgroundColor = '';
+                    }, 150);
+                    
+                    toggleMobileMenu();
+                });
+                
+                // Touch event listener for mobile devices
+                mobileMenuButton.addEventListener('touchstart', function(e) {
+                    console.log('Mobile menu button touched');
+                    e.preventDefault();
+                    toggleMobileMenu();
+                });
+                
+                // Close menu when clicking on navigation links
+                mobileNavLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenuButton.classList.remove('hamburger-open');
+                        mobileMenu.classList.remove('mobile-menu-open');
+                        document.body.style.overflow = '';
+                    });
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenuButton.classList.remove('hamburger-open');
+                        mobileMenu.classList.remove('mobile-menu-open');
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Close menu on window resize (if screen becomes large)
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) { // md breakpoint
+                        mobileMenuButton.classList.remove('hamburger-open');
+                        mobileMenu.classList.remove('mobile-menu-open');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+            
+            const reportData = {
+                comparison: {
+                    newSystem: { successRate: 79.2, attended: 684641, passed: 542184 },
+                    oldSystem: { successRate: 72.7, attended: 44251, passed: 32163 }
+                },
+                streams: {
+                    math: { name: 'علمي رياضة', successRate: 85.8, passed: 92594, color: 'rgba(217, 119, 6, 0.8)', borderColor: 'rgb(217, 119, 6)' },
+                    science: { name: 'علمي علوم', successRate: 79.6, passed: 332183, color: 'rgba(2, 132, 199, 0.8)', borderColor: 'rgb(2, 132, 199)' },
+                    literary: { name: 'أدبي', successRate: 73.6, passed: 117407, color: 'rgba(225, 29, 72, 0.8)', borderColor: 'rgb(225, 29, 72)' }
+                },
+                subjects: {
+                    math: [
+                        { name: 'اللغة العربية', score: 80 },
+                        { name: 'اللغة الأجنبية الأولى', score: 60 },
+                        { name: 'الرياضيات', score: 60 },
+                        { name: 'الكيمياء', score: 60 },
+                        { name: 'الفيزياء', score: 60 }
+                    ],
+                    science: [
+                        { name: 'اللغة العربية', score: 80 },
+                        { name: 'اللغة الأجنبية الأولى', score: 60 },
+                        { name: 'الأحياء', score: 60 },
+                        { name: 'الكيمياء', score: 60 },
+                        { name: 'الفيزياء', score: 60 }
+                    ],
+                    literary: [
+                        { name: 'اللغة العربية', score: 80 },
+                        { name: 'اللغة الأجنبية الأولى', score: 60 },
+                        { name: 'التاريخ', score: 60 },
+                        { name: 'الجغرافيا', score: 60 },
+                        { name: 'الإحصاء', score: 60 }
+                    ]
+                }
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Cairo', sans-serif", size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        titleFont: { family: "'Cairo', sans-serif", size: 16 },
+                        bodyFont: { family: "'Cairo', sans-serif", size: 14 },
+                        rtl: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { family: "'Cairo', sans-serif", size: 12 },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        grid: {
+                            color: '#e2e8f0'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { family: "'Cairo', sans-serif", size: 14 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            };
+
+            // Get button elements first, as they are needed by updateSubjects
+            const btnMath = document.getElementById('btn-sc-math');
+            const btnScience = document.getElementById('btn-sc-science');
+            const btnLit = document.getElementById('btn-lit');
+
+            const buttons = {
+                math: btnMath,
+                science: btnScience,
+                literary: btnLit
+            };
+
+            const subjectsDisplay = document.getElementById('subjects-display');
+
+            // Define updateSubjects function here, after elements it depends on are retrieved
+            function updateSubjects(stream) {
+                if (!subjectsDisplay) { // Check if subjectsDisplay exists
+                    console.error("Element with ID 'subjects-display' not found. Cannot update subject display.");
+                    return;
+                }
+
+                subjectsDisplay.style.opacity = 0;
+                setTimeout(() => {
+                    subjectsDisplay.innerHTML = '';
+                    reportData.subjects[stream].forEach(subject => {
+                        const card = document.createElement('div');
+                        card.className = 'bg-slate-100 p-4 rounded-lg';
+                        card.innerHTML = `
+                            <h4 class="font-semibold text-slate-800">${subject.name}</h4>
+                            <p class="text-2xl font-bold text-teal-600 mt-1">${subject.score}</p>
+                            <p class="text-sm text-slate-500">درجة</p>
+                        `;
+                        subjectsDisplay.appendChild(card);
+                    });
+                    subjectsDisplay.style.opacity = 1;
+                }, 300);
+
+                // Deactivate all buttons
+                Object.values(buttons).forEach(btn => {
+                    if (btn) {
+                        btn.classList.remove('active');
+                    }
+                });
+                // Activate the current button
+                if (buttons[stream]) {
+                    buttons[stream].classList.add('active');
+                }
+            }
+
+
+            const systemsSuccessCtx = document.getElementById('systemsSuccessChart');
+            if (systemsSuccessCtx) {
+                new Chart(systemsSuccessCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['النظام الجديد', 'النظام القديم'],
+                        datasets: [{
+                            label: 'نسبة النجاح الإجمالية',
+                            data: [reportData.comparison.newSystem.successRate, reportData.comparison.oldSystem.successRate],
+                            backgroundColor: ['rgba(13, 148, 136, 0.8)', 'rgba(100, 116, 139, 0.8)'],
+                            borderColor: ['rgb(13, 148, 136)', 'rgb(100, 116, 139)'],
+                            borderWidth: 1,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }]
+                    },
+                    options: chartOptions
+                });
+            } else {
+                console.error("Canvas element with ID 'systemsSuccessChart' not found.");
+            }
+
+            const streamsSuccessCtx = document.getElementById('streamsSuccessChart');
+            if (streamsSuccessCtx) {
+                new Chart(streamsSuccessCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [reportData.streams.math.name, reportData.streams.science.name, reportData.streams.literary.name],
+                        datasets: [{
+                            label: 'نسبة النجاح حسب الشعبة',
+                            data: [reportData.streams.math.successRate, reportData.streams.science.successRate, reportData.streams.literary.successRate],
+                            backgroundColor: [reportData.streams.math.color, reportData.streams.science.color, reportData.streams.literary.color],
+                            borderColor: [reportData.streams.math.borderColor, reportData.streams.science.borderColor, reportData.streams.literary.borderColor],
+                            borderWidth: 1,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }]
+                    },
+                    options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }
+                });
+            } else {
+                console.error("Canvas element with ID 'streamsSuccessChart' not found.");
+            }
+            
+            const studentNumbersCtx = document.getElementById('studentNumbersChart');
+            if (studentNumbersCtx) {
+                new Chart(studentNumbersCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['النظام الجديد', 'النظام القديم'],
+                        datasets: [
+                            {
+                                label: 'ناجح',
+                                data: [reportData.comparison.newSystem.passed, reportData.comparison.oldSystem.passed],
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                borderColor: 'rgb(16, 185, 129)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'راسب/دور ثان',
+                                data: [
+                                    reportData.comparison.newSystem.attended - reportData.comparison.newSystem.passed,
+                                    reportData.comparison.oldSystem.attended - reportData.comparison.oldSystem.passed
+                                ],
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgb(239, 68, 68)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                ...chartOptions.plugins.tooltip,
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y.toLocaleString('ar-EG');
+                                        }
+                                        return label;
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'توزيع أعداد الطلاب الحاضرين',
+                                font: { size: 16, family: "'Cairo', sans-serif" }
+                            }
+                        },
+                        scales: {
+                            x: { ...chartOptions.scales.x, stacked: true },
+                            y: { 
+                                ...chartOptions.scales.y, 
+                                stacked: true,
+                                ticks: {
+                                    ...chartOptions.scales.y.ticks,
+                                    callback: function(value) { return value.toLocaleString('ar-EG'); }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                console.error("Canvas element with ID 'studentNumbersChart' not found.");
+            }
+
+            if (btnMath) {
+                btnMath.addEventListener('click', () => updateSubjects('math'));
+            } else {
+                console.error("Button with ID 'btn-sc-math' not found.");
+            }
+            if (btnScience) {
+                btnScience.addEventListener('click', () => updateSubjects('science'));
+            } else {
+                console.error("Button with ID 'btn-sc-science' not found.");
+            }
+            if (btnLit) {
+                btnLit.addEventListener('click', () => updateSubjects('literary'));
+            } else {
+                console.error("Button with ID 'btn-lit' not found.");
+            }
+
+            if (subjectsDisplay) {
+                updateSubjects('math');
+            } else {
+                console.error("Element with ID 'subjects-display' not found. Cannot initialize subject display.");
+            }
+
+            // Gemini API Integration
+            const analyzeButton = document.getElementById('analyze-button');
+            const analysisOutput = document.getElementById('analysis-output');
+            const buttonText = document.getElementById('button-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            if (analyzeButton && analysisOutput && buttonText && loadingSpinner) {
+                analyzeButton.addEventListener('click', async () => {
+                    analysisOutput.innerHTML = '<p class="text-slate-500">جاري تحليل البيانات، يرجى الانتظار...</p>';
+                    analyzeButton.disabled = true;
+                    buttonText.classList.add('hidden');
+                    loadingSpinner.classList.remove('hidden');
+
+                    const prompt = `
+                        بناءً على بيانات نتائج الثانوية العامة المصرية للعام الدراسي 2024-2025، قم بتحليل موجز ومفصل لأبرز النقاط.
+                        البيانات المتاحة:
+                        - النظام الجديد: نسبة النجاح ${reportData.comparison.newSystem.successRate}%، عدد الطلاب الحاضرين ${reportData.comparison.newSystem.attended}، عدد الناجحين ${reportData.comparison.newSystem.passed}.
+                        - النظام القديم: نسبة النجاح ${reportData.comparison.oldSystem.successRate}%، عدد الطلاب الحاضرين ${reportData.comparison.oldSystem.attended}، عدد الناجحين ${reportData.comparison.oldSystem.passed}.
+                        - أداء الشعب (النظام الجديد):
+                            - علمي رياضة: نسبة النجاح ${reportData.streams.math.successRate}%، عدد الناجحين ${reportData.streams.math.passed}.
+                            - علمي علوم: نسبة النجاح ${reportData.streams.science.successRate}%، عدد الناجحين ${reportData.streams.science.passed}.
+                            - أدبي: نسبة النجاح ${reportData.streams.literary.successRate}%، عدد الناجحين ${reportData.streams.literary.passed}.
+                        
+                        يرجى التركيز على:
+                        1.  مقارنة أداء النظام الجديد بالقديم.
+                        2.  تحليل أداء الشعب المختلفة في النظام الجديد.
+                        3.  أي ملاحظات أو استنتاجات رئيسية يمكن استخلاصها من هذه الأرقام.
+                        اجعل التحليل موجزًا ومباشرًا في فقرة واحدة أو فقرتين.
+                    `;
+
+                    try {
+                        let chatHistory = [];
+                        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                        const payload = { contents: chatHistory };
+                        const apiKey = "";
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                        
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const text = result.candidates[0].content.parts[0].text;
+                            analysisOutput.innerHTML = `<p>${text}</p>`;
+                        } else {
+                            analysisOutput.innerHTML = '<p class="text-red-600">حدث خطأ: لم يتم الحصول على تحليل. يرجى المحاولة مرة أخرى.</p>';
+                        }
+                    } catch (error) {
+                        console.error('Error calling Gemini API:', error);
+                        analysisOutput.innerHTML = '<p class="text-red-600">حدث خطأ أثناء الاتصال بخدمة التحليل. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</p>';
+                    } finally {
+                        analyzeButton.disabled = false;
+                        buttonText.classList.remove('hidden');
+                        loadingSpinner.classList.add('hidden');
+                    }
+                });
+            } else {
+                console.error("One or more LLM analysis elements not found. Cannot initialize LLM analysis feature.");
+            }
+
+            // Equivalent Score Calculator Logic
+            const arabCertificatePercentageInput = document.getElementById('arab-certificate-percentage');
+            const desiredFacultyTypeSelect = document.getElementById('desired-faculty-type');
+            const calculateEquivalentScoreButton = document.getElementById('calculate-equivalent-score');
+            const calculatedScoreSpan = document.getElementById('calculated-score');
+            const qualifyingSubjectsNote = document.getElementById('qualifying-subjects-note');
+            const errorMessage = document.getElementById('error-message');
+
+            if (arabCertificatePercentageInput && desiredFacultyTypeSelect && calculateEquivalentScoreButton && calculatedScoreSpan && qualifyingSubjectsNote && errorMessage) {
+                calculateEquivalentScoreButton.addEventListener('click', () => {
+                    const percentage = parseFloat(arabCertificatePercentageInput.value);
+                    const facultyType = desiredFacultyTypeSelect.value;
+
+                    // Reset messages
+                    qualifyingSubjectsNote.classList.add('hidden');
+                    errorMessage.classList.add('hidden');
+                    calculatedScoreSpan.textContent = '--';
+
+                    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+
+                    const equivalentScore = (percentage / 100) * 320;
+                    calculatedScoreSpan.textContent = equivalentScore.toFixed(2);
+
+                    if (facultyType === 'medical' || facultyType === 'engineering') {
+                        qualifyingSubjectsNote.classList.remove('hidden');
+                    }
+                });
+            } else {
+                console.error("One or more calculator elements not found. Cannot initialize calculator feature.");
+            }
+        });
+    </script>
+</body>
+</html>
