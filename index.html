@@ -146,16 +146,111 @@
             background-color: #0f766e; /* teal-700 */
             transform: translateY(-2px);
         }
+<<<<<<< HEAD
+        
+        /* Hamburger Menu Styles */
+        .hamburger-line {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Hamburger to X transformation */
+        .hamburger-open .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger-open .hamburger-line:nth-child(2) {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        .hamburger-open .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+        
+        /* Mobile menu open state */
+        .mobile-menu-open {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        
+        /* Mobile navigation link hover effects */
+        .mobile-nav-link:hover {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        
+        /* Focus styles for accessibility */
+        #mobile-menu-button:focus {
+            outline: none;
+        }
+        
+        /* Ensure mobile menu appears above other content */
+        #mobile-menu {
+            z-index: 40;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* Debug styles - remove after testing */
+        #mobile-menu-button {
+            border: 1px solid transparent;
+        }
+        
+        #mobile-menu-button:hover {
+            border-color: #cbd5e1;
+        }
+        
+        /* Ensure the button is clickable */
+        #mobile-menu-button {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+=======
+>>>>>>> 5d53e055f3b001555fdc4f2632b35f610812f184
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
     <nav class="fixed top-0 left-0 w-full bg-white shadow-md z-50 py-4">
+<<<<<<< HEAD
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <!-- Logo/Brand (optional) -->
+            <div class="text-xl font-bold text-teal-800 hidden sm:block">
+                تحليل الثانوية
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm md:text-base">
+                <a href="#highlights" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">الرئيسية</a>
+                <a href="#comparison" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">مقارنة الأنظمة</a> 
+                <a href="#tanseeq-predictions" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">توقعات التنسيق</a>
+                <a href="#equivalence-calculator" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">حاسبة المجموع</a>
+            </div>
+            
+            <!-- Mobile Hamburger Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden flex flex-col justify-center items-center w-10 h-10 space-y-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 rounded-md hover:bg-slate-100 active:bg-slate-200 cursor-pointer">
+                <span class="hamburger-line w-6 h-0.5 bg-slate-700 transition-all duration-300 ease-in-out transform origin-center"></span>
+                <span class="hamburger-line w-6 h-0.5 bg-slate-700 transition-all duration-300 ease-in-out"></span>
+                <span class="hamburger-line w-6 h-0.5 bg-slate-700 transition-all duration-300 ease-in-out transform origin-center"></span>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-slate-200 transform -translate-y-full opacity-0 transition-all duration-300 ease-in-out pointer-events-none">
+            <div class="container mx-auto px-4 py-4 space-y-2">
+                <a href="#highlights" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">الرئيسية</a>
+                <a href="#comparison" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">مقارنة الأنظمة</a> 
+                <a href="#tanseeq-predictions" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">توقعات التنسيق</a>
+                <a href="#equivalence-calculator" class="mobile-nav-link block text-slate-700 hover:text-teal-600 font-semibold transition-colors px-3 py-2 rounded-md text-center">حاسبة المجموع</a>
+            </div>
+=======
         <div class="container mx-auto px-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm md:text-base">
             <a href="#highlights" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">الرئيسية</a>
             <a href="#comparison" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">مقارنة الأنظمة</a> 
             <a href="#tanseeq-predictions" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">توقعات التنسيق</a>
             <a href="#equivalence-calculator" class="text-slate-700 hover:text-teal-600 font-semibold transition-colors whitespace-nowrap px-2 py-1 rounded-md">حاسبة المجموع</a>
+>>>>>>> 5d53e055f3b001555fdc4f2632b35f610812f184
         </div>
     </nav>
 
@@ -438,6 +533,89 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
+<<<<<<< HEAD
+            // Mobile Menu Toggle Functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            console.log('Mobile menu elements found:', {
+                button: mobileMenuButton,
+                menu: mobileMenu,
+                links: mobileNavLinks.length
+            });
+            
+            if (mobileMenuButton && mobileMenu) {
+                console.log('Setting up mobile menu event listeners');
+                
+                // Function to toggle mobile menu
+                function toggleMobileMenu() {
+                    console.log('Toggle mobile menu called');
+                    
+                    // Toggle hamburger icon
+                    mobileMenuButton.classList.toggle('hamburger-open');
+                    console.log('Hamburger class toggled:', mobileMenuButton.classList.contains('hamburger-open'));
+                    
+                    // Toggle mobile menu visibility
+                    mobileMenu.classList.toggle('mobile-menu-open');
+                    console.log('Mobile menu class toggled:', mobileMenu.classList.contains('mobile-menu-open'));
+                    
+                    // Prevent body scroll when menu is open
+                    document.body.style.overflow = mobileMenu.classList.contains('mobile-menu-open') ? 'hidden' : '';
+                }
+                
+                // Click event listener
+                mobileMenuButton.addEventListener('click', function(e) {
+                    console.log('Mobile menu button clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Add visual feedback
+                    mobileMenuButton.style.backgroundColor = '#f1f5f9';
+                    setTimeout(() => {
+                        mobileMenuButton.style.backgroundColor = '';
+                    }, 150);
+                    
+                    toggleMobileMenu();
+                });
+                
+                // Touch event listener for mobile devices
+                mobileMenuButton.addEventListener('touchstart', function(e) {
+                    console.log('Mobile menu button touched');
+                    e.preventDefault();
+                    toggleMobileMenu();
+                });
+                
+                // Close menu when clicking on navigation links
+                mobileNavLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenuButton.classList.remove('hamburger-open');
+                        mobileMenu.classList.remove('mobile-menu-open');
+                        document.body.style.overflow = '';
+                    });
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenuButton.classList.remove('hamburger-open');
+                        mobileMenu.classList.remove('mobile-menu-open');
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Close menu on window resize (if screen becomes large)
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) { // md breakpoint
+                        mobileMenuButton.classList.remove('hamburger-open');
+                        mobileMenu.classList.remove('mobile-menu-open');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+            
+=======
+>>>>>>> 5d53e055f3b001555fdc4f2632b35f610812f184
             const reportData = {
                 comparison: {
                     newSystem: { successRate: 79.2, attended: 684641, passed: 542184 },
@@ -809,4 +987,8 @@
         });
     </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 5d53e055f3b001555fdc4f2632b35f610812f184
